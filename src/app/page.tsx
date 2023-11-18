@@ -13,8 +13,14 @@ export default function Home() {
   const [pointPositions, setPointPositions] = useState<
     { row: number; col: number }[]
   >([]);
-  const [clickedPositions, setClickedPositions] = useState<Set<number>>(new Set());
+  const [clickedPositions, setClickedPositions] = useState<Set<number>>(
+    new Set()
+  );
   const [continueDialog, setContinueDialog] = useState(false);
+  const [welcomDialog, setWelcomDialog] = useState(true);
+  const [playerName, setPlayerName] = useState("");
+  const [nameError, setNameError] = useState<string>("");
+  const [goodbyeDialog, setGoodbyeDialog] = useState(false);
 
   useEffect(() => {
     if (score >= 15) {
@@ -27,8 +33,9 @@ export default function Home() {
       return;
     }
 
-    setClickedPositions((prevClickedPositions) => new Set(prevClickedPositions).add(i));
-
+    setClickedPositions((prevClickedPositions) =>
+      new Set(prevClickedPositions).add(i)
+    );
 
     let hitMouseCount = 0;
 
@@ -64,14 +71,14 @@ export default function Home() {
   };
 
   const handlestart = () => {
-    if (visibilityDuration !== 0) {
+    if (visibilityDuration > 0) {
       setShowGrid(true);
       setContinueDialog(false);
       console.log(level);
       console.log(visibilityDuration);
       startGame();
     } else {
-      setError("La durée d'affichage doit être différente de zéro !!!");
+      setError("Entrez une durée de visibilité valide !!!");
     }
   };
 
@@ -110,6 +117,31 @@ export default function Home() {
     setPointPositions([]);
     setContinueDialog(false);
     startGame();
+  };
+
+  const handlestopClick = () => {
+    setShowGrid(false);
+    setContinueDialog(false);
+    setScore(0);
+    setGoodbyeDialog(true);
+  };
+
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPlayerName(event.target.value);
+
+    if (event.target.value.trim() === "") {
+      setNameError("Le pseudonyme ne peut pas être vide !!!");
+    } else {
+      setNameError("");
+    }
+  };
+
+  const handlecontinuer = () => {
+    if (playerName.trim() === "") {
+      setNameError("Le pseudonyme ne peut pas être vide !!!");
+    } else {
+      setWelcomDialog(false);
+    }
   };
 
   const generateRandomPositions = (
@@ -164,7 +196,7 @@ export default function Home() {
         <div className="space-y-2 md:space-y-4">
           <div className="flex flex-col">
             <span className="text-sm">Pseudo: </span>
-            <span className="text-sm">Oloni</span>
+            <span className="text-sm">{playerName}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-sm">Score actuel: </span>
@@ -226,19 +258,86 @@ export default function Home() {
       )}
       {continueDialog && (
         <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-gray-800 bg-opacity-75">
-          <div className="bg-white p-5 rounded-lg">
-            <p>Félicitations! Vous avez atteint 15 points.</p>
-            <p>Voulez-vous continuer?</p>
-            <button onClick={handleContinueClick}>Continuer</button>
-            <button
-              onClick={() => {
-                setShowGrid(false);
-                setContinueDialog(false);
-                setScore(0);
-              }}
-            >
-              Arrêter
-            </button>
+          <div className="bg-white p-5 rounded-lg container mx-5 md:w-[500px]">
+            <div className="flex justify-center items-center my-5">
+              <Image
+                src="/mouse.png"
+                alt="Image pour la position actuelle"
+                className="object-cover"
+                width={80}
+                height={80}
+              />
+            </div>
+
+            <p>
+              Félicitations grand chasseur de souris ! Tu viens d&apos;en tuer
+              15, la maison est maintenant libérée de toutes ces bêtes qui
+              empechaient les habitant de cette humble demeur de vivre
+              serainement.
+            </p>
+            <div className="flex justify-between items-center my-5">
+              <button className="hover:font-bold" onClick={handleContinueClick}>
+                Continuer
+              </button>
+              <button className="hover:font-bold" onClick={handlestopClick}>
+                Arrêter
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {welcomDialog && (
+        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-gray-800 bg-opacity-75">
+          <div className="bg-white p-5 rounded-lg container mx-5 md:w-[500px]">
+            <div className="flex justify-center items-center my-5">
+              <Image
+                src="/mouse.png"
+                alt="Image pour la position actuelle"
+                className="object-cover"
+                width={80}
+                height={80}
+              />
+            </div>
+            <p>
+              Salut chasseur de souris, tu es enfin là ! Les petites créatures
+              ont élu domicile ici, perturbant la tranquillité des habitants.
+              Alors, sans plus attendre, quel est ton pseudonyme de chasseur ?
+            </p>
+            <input
+              type="text"
+              id="pseudo"
+              value={playerName}
+              onChange={handleNameChange}
+              className="w-full h-8 mt-3 border-[1px] border-black rounded-md p-2"
+            />
+            <span>
+              {nameError && (
+                <p className="text-red-500 text-sm mt-1">{nameError}</p>
+              )}
+            </span>{" "}
+            <div className="flex justify-end items-center my-5">
+              <button className="hover:font-bold" onClick={handlecontinuer}>
+                Continuer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {goodbyeDialog && (
+        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-gray-800 bg-opacity-75">
+          <div className="bg-gray-100 p-5 rounded-lg h-full w-full flex flex-col item-center justify-center">
+            <div className="flex justify-center items-center my-5">
+              <Image
+                src="/mouse.png"
+                alt="Image pour la position actuelle"
+                className="object-cover"
+                width={180}
+                height={180}
+              />
+            </div>
+            <p className="flex justify-center items-center text-lg">
+              Au revoir, chasseur de souris ! Merci d&apos;avoir joué.
+            </p>
           </div>
         </div>
       )}
