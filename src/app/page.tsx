@@ -119,6 +119,14 @@ export default function Home() {
     startGame();
   };
 
+  const handlestop = () => {
+    setShowGrid(false);
+    setContinueDialog(false);
+    setScore(0);
+    setVisibilityDuration(0);
+    setSelectedLevel("Facile");
+  };
+
   const handlestopClick = () => {
     setShowGrid(false);
     setContinueDialog(false);
@@ -194,9 +202,14 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-start p-5 container mx-auto">
       <div className="md:grid md:grid-cols-2 md:justify-between mb-5 w-full ">
         <div className="space-y-2 md:space-y-4">
-          <div className="flex flex-col">
+          <div className="flex flex-col relative">
             <span className="text-sm">Pseudo: </span>
             <span className="text-sm">{playerName}</span>
+            {showGrid && (
+              <button onClick={handlestop} className="absolute right-0 top-2 bg-red-500 text-white border-[1px] border-black rounded-md text-sm p-1 md:left-0 md:top-[98px]">
+                Arrêter
+              </button>
+            )}
           </div>
           <div className="flex flex-col">
             <span className="text-sm">Score actuel: </span>
