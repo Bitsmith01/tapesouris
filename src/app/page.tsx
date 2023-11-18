@@ -13,6 +13,7 @@ export default function Home() {
   const [pointPositions, setPointPositions] = useState<
     { row: number; col: number }[]
   >([]);
+  const [clickedPositions, setClickedPositions] = useState<Set<number>>(new Set());
   const [continueDialog, setContinueDialog] = useState(false);
 
   useEffect(() => {
@@ -20,6 +21,32 @@ export default function Home() {
       setContinueDialog(true);
     }
   }, [score]);
+
+  const handleClickOnGrid = (i: number) => {
+    if (clickedPositions.has(i)) {
+      return;
+    }
+
+    setClickedPositions((prevClickedPositions) => new Set(prevClickedPositions).add(i));
+
+
+    let hitMouseCount = 0;
+
+    pointPositions.forEach((position) => {
+      if (position.row === Math.floor(i / 3) && position.col === i % 3) {
+        hitMouseCount++;
+      }
+    });
+
+    let pointsToAdd = 0;
+    if (hitMouseCount > 0) {
+      pointsToAdd = hitMouseCount;
+    } else {
+      pointsToAdd = -1;
+    }
+
+    setScore((prevScore) => prevScore + pointsToAdd);
+  };
 
   const handleLevelChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const selectedLevel = event.target.value;
@@ -49,6 +76,7 @@ export default function Home() {
   };
 
   const startGame = () => {
+    setClickedPositions(new Set());
     const pointCount = getPointCountForLevel(level);
     setPointPositions(generateRandomPositions(pointCount));
 
@@ -107,8 +135,12 @@ export default function Home() {
         );
 
       items.push(
-        <div className="flex justify-center items-center" key={i}>
-          <div className="h-[100px] w-[100px] md:h-[200px] md:w-[200px] bg-gray-50 border-2 border-gray-900 rounded-full">
+        <div
+          className="flex justify-center items-center"
+          key={i}
+          onClick={() => handleClickOnGrid(i)}
+        >
+          <div className="h-[100px] w-[100px] md:h-[200px] md:w-[200px] bg-gray-50 border-2 border-gray-900 rounded-full hover:cursor-pointer">
             {isCurrentPosition ? (
               <div className="relative w-full h-full rounded-full overflow-hidden">
                 <Image
@@ -198,7 +230,15 @@ export default function Home() {
             <p>Félicitations! Vous avez atteint 15 points.</p>
             <p>Voulez-vous continuer?</p>
             <button onClick={handleContinueClick}>Continuer</button>
-            <button onClick={() => setShowGrid(false)}>Arrêter</button>
+            <button
+              onClick={() => {
+                setShowGrid(false);
+                setContinueDialog(false);
+                setScore(0);
+              }}
+            >
+              Arrêter
+            </button>
           </div>
         </div>
       )}
