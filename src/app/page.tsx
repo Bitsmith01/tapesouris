@@ -272,7 +272,7 @@ export default function Home() {
             <p>
               Félicitations grand chasseur de souris ! Tu viens d&apos;en tuer
               15, la maison est maintenant libérée de toutes ces bêtes qui
-              empechaient les habitant de cette humble demeur de vivre
+              empechaient les habitants de cette humble demeur de vivre
               serainement.
             </p>
             <div className="flex justify-between items-center my-5">
